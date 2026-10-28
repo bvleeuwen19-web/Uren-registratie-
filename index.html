@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Uren en klussen</title>
+<meta name="theme-color" content="#26313d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Uren">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{--bg:#e9ecef;--slate:#26313d;--paper:#fff;--ink:#1d2733;--muted:#667384;--line:#d5dbe2;--field:#f6f8fa;--accent:#c8552b;--accent-ink:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#151b22;--slate:#0d1319;--paper:#1d2631;--ink:#e7ecf2;--muted:#98a5b5;--line:#2f3b49;--field:#141b23;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#151b22;--slate:#0d1319;--paper:#1d2631;--ink:#e7ecf2;--muted:#98a5b5;--line:#2f3b49;--field:#141b23;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,system-ui,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--slate);z-index:10}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--slate);color:#fff;padding:14px 16px 0}
+.bar h1{font:700 30px/1 "Arial Narrow",sans-serif;margin:0 0 10px;max-width:720px;margin-inline:auto}
+.tabs{display:flex;gap:4px;max-width:720px;margin:0 auto}
+.tabs button{flex:1;background:none;border:0;color:#b8c3d1;font:600 16px system-ui,sans-serif;padding:10px 6px;border-bottom:3px solid transparent;cursor:pointer}
+.tabs button.on{color:#fff;border-color:var(--accent)}
+main{max-width:720px;margin:0 auto;padding:16px 16px 60px}
+section{display:none}section.on{display:block}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+h2{font:600 22px "Arial Narrow",sans-serif;margin:0 0 6px}
+label{display:block;font-size:13px;font-weight:500;color:var(--muted);margin:10px 0 4px}
+input,select{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:11px 12px}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+button.b{font:600 15px system-ui,sans-serif;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:11px 16px;cursor:pointer}
+button.p{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);margin-top:14px;width:100%}
+button.t{border:0;background:none;color:var(--muted);font:500 14px system-ui,sans-serif;cursor:pointer;padding:4px 6px}
+#note{min-height:22px;font-size:14px;color:var(--muted);margin:2px 0 8px}
+.warn{background:#fff3cd;color:#5c4400;border-radius:8px;padding:10px 12px;font-size:14px;margin-bottom:14px}
+.warn[hidden]{display:none}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}
+.row small{display:block;color:var(--muted)}
+.n{font:700 22px "Arial Narrow",sans-serif;white-space:nowrap}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stats div{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px}
+.stats b{display:block;font:700 30px/1.1 "Arial Narrow",sans-serif}
+.stats span{font-size:13px;color:var(--muted)}
+.meter{height:8px;border-radius:4px;background:var(--line);margin-top:6px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent)}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:6px;margin:10px 0}
+.photos button{padding:0;border:0;background:none;cursor:pointer;border-radius:8px;overflow:hidden}
+.photos img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.file{display:block;border:2px dashed var(--line);border-radius:10px;padding:12px;text-align:center;color:var(--muted);cursor:pointer;margin:6px 0 0;font-size:15px}
+.file input{position:absolute;opacity:0;width:1px;height:1px}
+.file:focus-within{outline:3px solid var(--accent);outline-offset:1px}
+.kh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+#lb{position:fixed;inset:0;background:rgba(8,12,18,.94);z-index:20;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px}
+#lb.on{display:flex}
+#lb img{max-width:100%;max-height:75vh;border-radius:8px}
+#lb .b{background:#fff;color:#1d2733}
+.empty{color:var(--muted);font-size:15px;padding:6px 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 10px}
+.chip{font:600 15px system-ui,sans-serif;border:1px solid var(--line);background:var(--field);color:var(--ink);border-radius:20px;padding:9px 14px;cursor:pointer}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.add{display:flex;gap:8px}.add input{flex:1}
+.st{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.st>div{display:flex;gap:6px;align-items:center}
+.st input{width:84px;text-align:center;font-weight:600}
+.st .b{width:46px;padding:10px 0;font-size:20px}
+.total{background:var(--slate);color:#fff;border-radius:10px;padding:14px;margin:12px 0}
+.total span{font-size:14px;color:#b8c3d1;display:block}
+.total b{font:700 40px/1.1 "Arial Narrow",Impact,sans-serif}
+.total small{display:block;color:#b8c3d1;font-size:13px}
+</style>
+</head>
+<body>
+<div class="bar"><h1>Uren en klussen</h1>
+<div class="tabs" role="tablist"><button class="on" data-tab="uren">Uren</button><button data-tab="klussen">Klussen</button><button data-tab="overzicht">Overzicht</button></div></div>
+<main>
+<div class="warn" id="warn" hidden>Opslaan is in deze weergave niet beschikbaar. Wat u invult blijft alleen staan zolang de pagina open is.</div>
+<div id="note" aria-live="polite"></div>
+
+<section id="s-uren" class="on">
+<div class="card"><h2>Uren invullen</h2>
+<label for="ksel">Klus</label><select id="ksel"></select>
+<label for="dat">Datum</label><input type="date" id="dat">
+<div class="chips" id="days" style="margin-top:8px"></div>
+<label for="adr">Adres</label><input type="text" id="adr" placeholder="Straat en plaats" autocomplete="street-address">
+<label>Met wie heb je gewerkt?</label>
+<div class="chips" id="chips"></div>
+<div class="add"><input type="text" id="nn" placeholder="Nieuwe naam" aria-label="Nieuwe naam"><button class="b" data-act="addNaam">Toevoegen</button></div>
+<div id="steps" style="margin-top:12px"></div>
+<div class="total"><span>Totaal uren schrijven</span><b id="tot">0 u</b><small id="calc"></small></div>
+<label for="txt">Notitie (niet verplicht)</label><input type="text" id="txt" placeholder="Bijvoorbeeld: nok gedaan, goot nog open">
+<button class="b p" data-act="addUren">Uren opslaan</button></div>
+<div class="card"><h2>Laatste registraties</h2><div id="urenLijst"></div></div>
+</section>
+
+<section id="s-klussen">
+<div class="card"><h2>Nieuwe klus</h2>
+<div class="g2"><div><label for="kn">Naam of klant</label><input type="text" id="kn" placeholder="Familie De Vries"></div>
+<div><label for="ka">Adres</label><input type="text" id="ka" placeholder="Lindelaan 12"></div></div>
+<button class="b p" data-act="addKlus">Klus toevoegen</button></div>
+<div id="klusLijst"></div>
+</section>
+
+<section id="s-overzicht">
+<div class="stats" id="stats"></div>
+<div class="card"><h2>Per klus</h2><div id="perKlus"></div></div>
+<div class="card"><h2>Per persoon</h2><div id="perPers"></div></div>
+<div class="card"><h2>Per week</h2><div id="perWeek"></div></div>
+</section>
+</main>
+
+<div id="lb" role="dialog" aria-label="Foto"><img id="lbimg" alt="Foto van de klus"><div><button class="b" data-act="lbClose">Sluiten</button> <button class="b" data-act="lbDel">Foto verwijderen</button></div></div>
+
+<script>
+var DEF=["John","Damian","Milan","Tom","Jeffrey","Nick","Quincy"],V={heen:0,terug:0,gewerkt:0,pauze:.5},sel=[],S={klussen:[],uren:[],namen:DEF.slice()},db=null,urls={},q=Promise.resolve(),lb=null;
+var $=function(i){return document.getElementById(i)};
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function nid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function note(t){$("note").textContent=t||""}
+function p2(n){return(n<10?"0":"")+n}
+function key(d){return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())}
+function pd(s){return new Date(s+"T00:00:00")}
+function mon(d){var x=new Date(d);x.setDate(x.getDate()-(x.getDay()+6)%7);x.setHours(0,0,0,0);return x}
+function hrs(n){return String(Math.round(n*100)/100).replace(".",",")+" u"}
+function fd(s){return pd(s).toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"short"})}
+function kn(id){var k=S.klussen.filter(function(k){return k.id===id})[0];return k?k.naam:"(verwijderde klus)"}
+function sum(a){return a.reduce(function(t,u){return t+(+u.uren||0)},0)}
+function tx(st,m,f){return new Promise(function(res,rej){var t=db.transaction(st,m),r=f(t.objectStore(st));t.oncomplete=function(){res(r&&r.result)};t.onerror=t.onabort=function(){rej(t.error)}})}
+function save(k){if(!db)return;q=q.then(function(){return tx("kv","readwrite",function(s){return s.put(S[k],k)})}).catch(function(){note("Opslaan mislukt, probeer het opnieuw.")})}
+function photo(id){if(urls[id])return Promise.resolve(urls[id]);return tx("foto","readonly",function(s){return s.get(id)}).then(function(b){return b?(urls[id]=URL.createObjectURL(b)):""})}
+function showPhotos(){document.querySelectorAll("img[data-pid]").forEach(function(im){photo(im.dataset.pid).then(function(u){if(u)im.src=u})})}
+function delPhoto(id){delete urls[id];if(db)tx("foto","readwrite",function(s){return s.delete(id)}).catch(function(){})}
+
+function drawSel(){var s=$("ksel"),v=s.value;
+s.innerHTML=S.klussen.length?S.klussen.map(function(k){return"<option value='"+k.id+"'>"+esc(k.naam)+(k.adres?" – "+esc(k.adres):"")+"</option>"}).join(""):"<option value=''>Maak eerst een klus aan</option>";
+if(v)s.value=v}
+function drawUren(){var l=S.uren.slice().sort(function(a,b){return a.datum<b.datum?1:a.datum>b.datum?-1:b.id>a.id?1:-1}).slice(0,15);
+$("urenLijst").innerHTML=l.length?l.map(function(u){return"<div class='row'><div><strong>"+esc(kn(u.klus))+"</strong><small>"+fd(u.datum)+((u.mensen&&u.mensen.length)?" · met "+u.mensen.map(esc).join(", "):"")+(u.notitie?" · "+esc(u.notitie):"")+"</small>"+(u.adres?"<small>"+esc(u.adres)+"</small>":"")+(u.gewerkt!=null?"<small>"+hrs(u.gewerkt)+" werk + "+hrs(u.heen)+" heen + "+hrs(u.terug)+" terug − "+hrs(u.pauze)+" pauze</small>":"")+"</div><div><span class='n'>"+hrs(u.uren)+"</span> <button class='t' data-act='delUren' data-id='"+u.id+"' aria-label='Registratie verwijderen'>×</button></div></div>"}).join(""):"<p class='empty'>Nog geen uren ingevuld.</p>"}
+function drawKlussen(){$("klusLijst").innerHTML=S.klussen.length?S.klussen.map(function(k){
+var h=sum(S.uren.filter(function(u){return u.klus===k.id})),f=k.fotos||[];
+return"<div class='card'><div class='kh'><div><h2>"+esc(k.naam)+"</h2><small style='color:var(--muted)'>"+esc(k.adres||"")+"</small></div><span class='n'>"+hrs(h)+"</span></div>"+
+(f.length?"<div class='photos'>"+f.map(function(id){return"<button data-act='photo' data-k='"+k.id+"' data-p='"+id+"' aria-label='Foto bekijken'><img data-pid='"+id+"' alt='Foto van "+esc(k.naam)+"'></button>"}).join("")+"</div>":"")+
+"<label class='file'>+ Foto’s toevoegen<input type='file' accept='image/*' multiple data-klus='"+k.id+"'></label>"+
+"<div style='text-align:right;margin-top:6px'><button class='t' data-act='delKlus' data-id='"+k.id+"'>Klus verwijderen</button></div></div>"}).join(""):"<p class='empty'>Nog geen klussen. Voeg hierboven uw eerste klus toe.</p>";showPhotos()}
+function drawOverzicht(){var now=new Date(),ws=key(mon(now)),ms=key(now).slice(0,7);
+var w=sum(S.uren.filter(function(u){return u.datum>=ws})),m=sum(S.uren.filter(function(u){return u.datum.slice(0,7)===ms}));
+$("stats").innerHTML="<div><b>"+hrs(w)+"</b><span>Deze week</span></div><div><b>"+hrs(m)+"</b><span>Deze maand</span></div><div><b>"+hrs(sum(S.uren))+"</b><span>Totaal</span></div>";
+var pk=S.klussen.map(function(k){return{n:k.naam,h:sum(S.uren.filter(function(u){return u.klus===k.id}))}}).sort(function(a,b){return b.h-a.h}),mx=Math.max.apply(null,pk.map(function(x){return x.h}).concat(1));
+$("perKlus").innerHTML=pk.length?pk.map(function(x){return"<div style='margin:10px 0'><div class='kh'><span>"+esc(x.n)+"</span><strong>"+hrs(x.h)+"</strong></div><div class='meter'><i style='width:"+Math.round(x.h/mx*100)+"%'></i></div></div>"}).join(""):"<p class='empty'>Nog niets om te tonen.</p>";
+var pp={};S.uren.forEach(function(u){(u.mensen||[]).forEach(function(n){pp[n]=pp[n]||{h:0,d:0};pp[n].h+=+u.uren||0;pp[n].d++})});
+var pn=Object.keys(pp).sort(function(a,b){return pp[b].h-pp[a].h});
+$("perPers").innerHTML=pn.length?pn.map(function(n){return"<div class='row'><span>"+esc(n)+"<small>"+pp[n].d+"x samen gewerkt</small></span><span class='n'>"+hrs(pp[n].h)+"</span></div>"}).join(""):"<p class='empty'>Nog niemand gekozen bij je uren.</p>";
+var wk={};S.uren.forEach(function(u){var k=key(mon(pd(u.datum)));wk[k]=(wk[k]||0)+(+u.uren||0)});
+var ks=Object.keys(wk).sort().reverse().slice(0,8);
+$("perWeek").innerHTML=ks.length?ks.map(function(k){return"<div class='row'><span>Week van "+pd(k).toLocaleDateString("nl-NL",{day:"numeric",month:"long"})+"</span><span class='n'>"+hrs(wk[k])+"</span></div>"}).join(""):"<p class='empty'>Nog niets om te tonen.</p>"}
+function fmt(n){return String(n).replace(".",",")}
+function total(){return Math.max(0,V.heen+V.terug+V.gewerkt-V.pauze)}
+function calcTot(){$("tot").textContent=hrs(total());$("calc").textContent=fmt(V.gewerkt)+" werk + "+fmt(V.heen)+" heen + "+fmt(V.terug)+" terug − "+fmt(V.pauze)+" pauze"}
+function buildSteps(){$("steps").innerHTML=[["heen","Heenreis"],["terug","Terugreis"],["gewerkt","Totaal gewerkte uren"],["pauze","Pauze"]].map(function(r){return"<div class='st'><span>"+r[1]+"</span><div><button class='b' data-act='step' data-k='"+r[0]+"' data-d='-0.25' aria-label='"+r[1]+" min 0,25'>−</button><input type='number' data-v='"+r[0]+"' min='0' step='0.25' inputmode='decimal' value='"+V[r[0]]+"' aria-label='"+r[1]+"'><button class='b' data-act='step' data-k='"+r[0]+"' data-d='0.25' aria-label='"+r[1]+" plus 0,25'>+</button></div></div>"}).join("")}
+function setV(k,v){V[k]=Math.max(0,Math.round(v*4)/4);var i=document.querySelector("[data-v='"+k+"']");if(i)i.value=V[k];calcTot()}
+function resetForm(){$("adr").value="";["heen","terug","gewerkt"].forEach(function(k){setV(k,0)});setV("pauze",.5);sel=[];$("txt").value="";drawChips()}
+function drawChips(){$("chips").innerHTML=S.namen.map(function(n){return"<button class='chip"+(sel.indexOf(n)>-1?" on":"")+"' data-act='pers' data-n='"+esc(n)+"'>"+esc(n)+"</button>"}).join("")}
+function fillAdr(){var k=S.klussen.filter(function(x){return x.id===$("ksel").value})[0];$("adr").value=(k&&k.adres)||""}
+function drawDays(){var v=$("dat").value;if(!v){$("days").innerHTML="";return}var d=pd(v),w=d.getDay();
+$("days").innerHTML=["Ma","Di","Wo","Do","Vr"].map(function(n,i){return"<button class='chip"+(w===i+1?" on":"")+"' data-act='day' data-i='"+(i+1)+"'>"+n+"</button>"}).join("")+"<span style='align-self:center;color:var(--muted);font-size:14px'>"+d.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"})+"</span>"}
+function drawAll(){drawSel();if(!$("adr").value)fillAdr();drawChips();drawDays();drawUren();drawKlussen();drawOverzicht()}
+document.addEventListener("change",function(e){if(e.target.id==="ksel")fillAdr();if(e.target.id==="dat")drawDays()});
+document.addEventListener("input",function(e){var k=e.target.dataset&&e.target.dataset.v;if(k){V[k]=Math.max(0,parseFloat(e.target.value)||0);calcTot()}});
+document.addEventListener("change",function(e){var k=e.target.dataset&&e.target.dataset.v;if(k)setV(k,parseFloat(e.target.value)||0)});
+
+function shrink(f){return new Promise(function(res){var r=new FileReader();
+r.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement("canvas");
+c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext("2d").drawImage(im,0,0,c.width,c.height);c.toBlob(function(b){res(b)},"image/jpeg",.82)};
+im.onerror=function(){res(null)};im.src=r.result};r.onerror=function(){res(null)};r.readAsDataURL(f)})}
+
+document.addEventListener("click",function(e){var t=e.target.closest("[data-act],[data-tab]");if(!t)return;
+if(t.dataset.tab){document.querySelectorAll("[data-tab]").forEach(function(b){b.classList.toggle("on",b===t)});
+document.querySelectorAll("section").forEach(function(s){s.classList.toggle("on",s.id==="s-"+t.dataset.tab)});note("");return}
+var a=t.dataset.act,id=t.dataset.id;
+if(a==="addUren"){var k=$("ksel").value,tot=total();
+if(!k)return note("Maak eerst een klus aan op het tabblad Klussen.");
+if(!(tot>0))return note("Vul de uren in.");
+if(!$("dat").value)return note("Kies een datum.");
+S.uren.push({id:nid(),klus:k,datum:$("dat").value,heen:V.heen,terug:V.terug,gewerkt:V.gewerkt,pauze:V.pauze,uren:tot,adres:$("adr").value.trim(),mensen:sel.slice(),notitie:$("txt").value.trim()});
+resetForm();note("Uren opgeslagen.");save("uren");drawAll()}
+if(a==="day"){var dd=mon(pd($("dat").value||key(new Date())));dd.setDate(dd.getDate()+(+t.dataset.i-1));$("dat").value=key(dd);drawDays()}
+if(a==="step"){setV(t.dataset.k,V[t.dataset.k]+parseFloat(t.dataset.d))}
+if(a==="pers"){var pn_=t.dataset.n,pi=sel.indexOf(pn_);if(pi>-1)sel.splice(pi,1);else sel.push(pn_);drawChips()}
+if(a==="addNaam"){var nm=$("nn").value.trim();if(!nm)return;
+var ex=S.namen.filter(function(x){return x.toLowerCase()===nm.toLowerCase()})[0];
+if(!ex){S.namen.push(nm);ex=nm;save("namen")}
+if(sel.indexOf(ex)<0)sel.push(ex);$("nn").value="";drawChips()}
+if(a==="delUren"){S.uren=S.uren.filter(function(x){return x.id!==id});save("uren");drawAll()}
+if(a==="addKlus"){var n=$("kn").value.trim();if(!n)return note("Vul een naam in.");
+S.klussen.push({id:nid(),naam:n,adres:$("ka").value.trim(),fotos:[]});$("kn").value="";$("ka").value="";note("");save("klussen");drawAll()}
+if(a==="delKlus"){if(t.dataset.sure!=="1"){t.dataset.sure="1";t.textContent="Zeker weten? Tik nogmaals";return}
+var kl=S.klussen.filter(function(x){return x.id===id})[0];
+if(kl)(kl.fotos||[]).forEach(delPhoto);
+S.klussen=S.klussen.filter(function(x){return x.id!==id});S.uren=S.uren.filter(function(x){return x.klus!==id});save("klussen");save("uren");drawAll()}
+if(a==="photo"){lb={k:t.dataset.k,p:t.dataset.p};photo(lb.p).then(function(u){$("lbimg").src=u});$("lb").classList.add("on")}
+if(a==="lbClose"){$("lb").classList.remove("on");lb=null}
+if(a==="lbDel"&&lb){var kk=S.klussen.filter(function(x){return x.id===lb.k})[0],pid=lb.p;
+if(kk)kk.fotos=kk.fotos.filter(function(x){return x!==pid});delPhoto(pid);
+$("lb").classList.remove("on");lb=null;save("klussen");drawAll()}});
+
+document.addEventListener("change",function(e){var t=e.target;if(!t.dataset||!t.dataset.klus)return;
+var k=S.klussen.filter(function(x){return x.id===t.dataset.klus})[0],files=Array.prototype.slice.call(t.files);
+if(!k||!files.length)return;
+if(!db)return note("Foto’s toevoegen is niet beschikbaar.");
+note("Foto’s uploaden…");k.fotos=k.fotos||[];
+files.reduce(function(p,f){return p.then(function(){return shrink(f)}).then(function(b){if(!b)return;var id=nid();return tx("foto","readwrite",function(s){return s.put(b,id)}).then(function(){k.fotos.push(id);drawKlussen()})})},Promise.resolve())
+.then(function(){note("")},function(){note("Een foto kon niet worden geüpload.")}).then(function(){save("klussen");drawAll()})});
+
+$("dat").value=key(new Date());buildSteps();calcTot();drawAll();
+(function(){try{var r=indexedDB.open("uren-klussen",1);
+r.onupgradeneeded=function(){r.result.createObjectStore("kv");r.result.createObjectStore("foto")};
+r.onsuccess=function(){db=r.result;["klussen","uren","namen"].forEach(function(k){tx("kv","readonly",function(s){return s.get(k)}).then(function(v){S[k]=v||(k==="namen"?DEF.slice():[]);drawAll()})})};
+r.onerror=function(){$("warn").hidden=false}}catch(e){$("warn").hidden=false}
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(function(){})})();
+</script>
+</body>
+</html>
