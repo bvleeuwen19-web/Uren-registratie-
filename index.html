@@ -106,17 +106,17 @@ textarea:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
 <label>Wie</label>
 <div class="chips" id="chips"></div>
 <div class="add"><input type="text" id="nn" placeholder="Nieuwe naam" aria-label="Nieuwe naam"><button class="b" data-act="addNaam">Toevoegen</button></div>
-<label>Reistijd heen</label>
+<div class="st" style="margin-top:14px"><span>Loods uren<br><small style="color:var(--muted)">Apart bijgehouden, niet bij het totaal</small></span><div><button class="b" data-act="stepL" data-d="-0.25" aria-label="Loods min 0,25">−</button><input type="number" id="loodsU" data-f="loodsU" min="0" step="0.25" inputmode="decimal" aria-label="Loods uren"><button class="b" data-act="stepL" data-d="0.25" aria-label="Loods plus 0,25">+</button></div></div>
+<input type="text" id="loodsT" data-f="loodsT" placeholder="Toelichting, bijvoorbeeld tanken" aria-label="Loods toelichting">
+<label>Reistijd naar de klus</label>
 <div class="tr"><input type="time" id="heenA" data-f="heenA" aria-label="Heenreis van"><span>/</span><input type="time" id="heenB" data-f="heenB" aria-label="Heenreis tot"></div>
-<label>Aantal uren gewerkt</label>
+<label>Op de klus (uren gewerkt)</label>
 <div id="blokken"></div>
 <button class="b" data-act="addBlok">+ Regel toevoegen</button>
 <label>Reistijd terug</label>
 <div class="tr"><input type="time" id="terugA" data-f="terugA" aria-label="Terugreis van"><span>/</span><input type="time" id="terugB" data-f="terugB" aria-label="Terugreis tot"></div>
 <div class="st" style="margin-top:12px"><span>Pauze (uur)</span><div><button class="b" data-act="step" data-d="-0.25" aria-label="Pauze min 0,25">−</button><input type="number" id="pauze" data-f="pauze" min="0" step="0.25" inputmode="decimal" aria-label="Pauze"><button class="b" data-act="step" data-d="0.25" aria-label="Pauze plus 0,25">+</button></div></div>
 <label for="adr">Adress</label><textarea id="adr" rows="2" data-f="adres" placeholder="Straat en plaats, eventueel meer regels"></textarea>
-<div class="st" style="margin-top:6px"><span>Loods uren<br><small style="color:var(--muted)">Apart bijgehouden, niet bij het totaal</small></span><div><button class="b" data-act="stepL" data-d="-0.25" aria-label="Loods min 0,25">−</button><input type="number" id="loodsU" data-f="loodsU" min="0" step="0.25" inputmode="decimal" aria-label="Loods uren"><button class="b" data-act="stepL" data-d="0.25" aria-label="Loods plus 0,25">+</button></div></div>
-<input type="text" id="loodsT" data-f="loodsT" placeholder="Toelichting, bijvoorbeeld tanken" aria-label="Loods toelichting">
 <div class="total"><span>Totaal schrijven</span><b id="tot">0 u</b><small id="calc"></small></div>
 <label for="tm">Zelf invullen (niet verplicht, anders rekent de app het uit)</label><input type="number" id="tm" data-f="tm" step="0.25" inputmode="decimal" placeholder="Automatisch">
 <button class="b p" data-act="addUren">Opslaan</button></div>
@@ -148,7 +148,7 @@ textarea:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
 <div class="card"><h2>Per week</h2><div id="perWeek"></div></div>
 <div class="card" id="kardKlus"><h2>Per klus</h2><div id="perKlus"></div></div>
 </section>
-<p style="text-align:center;color:var(--muted);font-size:12px;margin-top:24px">Versie 8</p>
+<p style="text-align:center;color:var(--muted);font-size:12px;margin-top:24px">Versie 9</p>
 </main>
 
 <div id="lb" role="dialog" aria-label="Foto"><div class="lbtop"><span id="lbcount"></span><button class="b" data-act="lbClose">Sluiten</button></div>
