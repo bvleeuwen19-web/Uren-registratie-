@@ -148,7 +148,7 @@ textarea:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
 <div class="card"><h2>Per week</h2><div id="perWeek"></div></div>
 <div class="card" id="kardKlus"><h2>Per klus</h2><div id="perKlus"></div></div>
 </section>
-<p style="text-align:center;color:var(--muted);font-size:12px;margin-top:24px">Versie 7</p>
+<p style="text-align:center;color:var(--muted);font-size:12px;margin-top:24px">Versie 8</p>
 </main>
 
 <div id="lb" role="dialog" aria-label="Foto"><div class="lbtop"><span id="lbcount"></span><button class="b" data-act="lbClose">Sluiten</button></div>
@@ -174,7 +174,7 @@ function sum(a){return a.reduce(function(t,u){return t+(+u.uren||0)},0)}
 function isoWeek(d){var t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())),n=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-n);var y=new Date(Date.UTC(t.getUTCFullYear(),0,1));return Math.ceil(((t-y)/864e5+1)/7)}
 function tx(st,m,f){return new Promise(function(res,rej){var t=db.transaction(st,m),r=f(t.objectStore(st));t.oncomplete=function(){res(r&&r.result)};t.onerror=t.onabort=function(){rej(t.error)}})}
 function save(k){if(!db)return;q=q.then(function(){return tx("kv","readwrite",function(s){return s.put(S[k],k)})}).catch(function(){note("Opslaan mislukt, probeer het opnieuw.")})}
-var blobs={};
+var blobs={},editK=null;
 function photo(id){if(urls[id])return Promise.resolve(urls[id]);return tx("foto","readonly",function(s){return s.get(id)}).then(function(b){if(b)blobs[id]=b;return b?(urls[id]=URL.createObjectURL(b)):""})}
 function lbList(){var k=S.klussen.filter(function(x){return x.id===lb.k})[0];return k?(k.fotos||[]):[]}
 function lbShow(){var l=lbList();if(!l.length){$("lb").classList.remove("on");lb=null;return}
@@ -209,10 +209,10 @@ $("urenLijst").innerHTML=l.length?l.map(function(u){var adr=(u.adres||"").split(
 return"<div class='row'><div><strong>"+cap(dn(pd(u.datum),{weekday:"long",day:"numeric",month:"short"}))+"</strong><small>"+(u.klus&&kn(u.klus)?esc(kn(u.klus))+" · ":"")+((u.mensen&&u.mensen.length)?"met "+u.mensen.map(esc).join(", "):"alleen")+(adr?" · "+esc(adr):"")+"</small></div><div style='text-align:right'><span class='n'>"+hrs(u.uren)+"</span><br><button class='t' data-act='edit' data-id='"+u.id+"'>Bewerk</button><button class='t' data-act='delUren' data-id='"+u.id+"' aria-label='Registratie verwijderen'>×</button></div></div>"}).join(""):"<p class='empty'>Nog geen uren ingevuld.</p>"}
 function drawKlussen(){var qz=($("zoek").value||"").trim().toLowerCase(),kl=S.klussen.filter(function(k){return!qz||(k.naam+" "+(k.adres||"")+" "+S.uren.filter(function(u){return u.klus===k.id}).map(function(u){return(u.notitie||"")+" "+(u.adres||"")}).join(" ")).toLowerCase().indexOf(qz)>-1});
 $("klusLijst").innerHTML=kl.length?kl.map(function(k){var h=sum(S.uren.filter(function(u){return u.klus===k.id})),f=k.fotos||[];
-return"<div class='card'><div class='kh'><div><h2>"+esc(k.naam)+"</h2><small style='color:var(--muted)'>"+esc(k.adres||"")+"</small></div>"+(h?"<span class='n'>"+hrs(h)+"</span>":"")+"</div>"+
+return"<div class='card'>"+(editK===k.id?"<label for='ekn'>Naam of klant</label><input type='text' id='ekn' value='"+esc(k.naam)+"'><label for='eka'>Adres</label><input type='text' id='eka' value='"+esc(k.adres||"")+"'><div style='display:flex;gap:8px;margin:12px 0'><button class='b p' style='margin-top:0;flex:1' data-act='saveKlus' data-id='"+k.id+"'>Opslaan</button><button class='b' data-act='cancelKlus'>Annuleer</button></div>":"<div class='kh'><div><h2>"+esc(k.naam)+"</h2><small style='color:var(--muted)'>"+esc(k.adres||"")+"</small></div>"+(h?"<span class='n'>"+hrs(h)+"</span>":"")+"</div>")+
 (f.length?"<div class='photos'>"+f.map(function(id){return"<button data-act='photo' data-k='"+k.id+"' data-p='"+id+"' aria-label='Foto bekijken'><img data-pid='"+id+"' alt='Foto van "+esc(k.naam)+"'></button>"}).join("")+"</div>":"")+
 "<label class='file'>+ Foto’s toevoegen<input type='file' accept='image/*' multiple data-klus='"+k.id+"'></label>"+
-"<div style='text-align:right;margin-top:6px'><button class='t' data-act='delKlus' data-id='"+k.id+"'>Klus verwijderen</button></div></div>"}).join(""):"<p class='empty'>"+(S.klussen.length?"Geen klussen gevonden.":"Nog geen klussen. Voeg hierboven uw eerste klus toe.")+"</p>";showPhotos()}
+"<div style='text-align:right;margin-top:6px'><button class='t' data-act='editKlus' data-id='"+k.id+"'>Naam of adres aanpassen</button> <button class='t' data-act='delKlus' data-id='"+k.id+"'>Klus verwijderen</button></div></div>"}).join(""):"<p class='empty'>"+(S.klussen.length?"Geen klussen gevonden.":"Nog geen klussen. Voeg hierboven uw eerste klus toe.")+"</p>";showPhotos()}
 
 function loodsLine(e){var a=e.loodsU?fmt(e.loodsU):"",b=e.loodsT!=null?e.loodsT:(e.loods||"");return a&&b?a+" + "+b:(a||b)}
 function eText(e){var L=["Wie: "+(e.mensen&&e.mensen.length?e.mensen.join(" "):"Alleen"),"Reistijd heen"+((e.heenA||e.heenB)?" "+(e.heenA||"")+"/"+(e.heenB||""):""),"Aantal uren gewerkt:"];
@@ -286,6 +286,9 @@ if(a==="step"){F.pauze=Math.max(0,Math.round((F.pauze+parseFloat(t.dataset.d))*4
 if(a==="stepL"){F.loodsU=Math.max(0,Math.round((F.loodsU+parseFloat(t.dataset.d))*4)/4);$("loodsU").value=F.loodsU}
 if(a==="addBlok"){var l=F.blokken[F.blokken.length-1];F.blokken.push({a:(l&&l.b)||"",b:"",t:""});drawBlokken()}
 if(a==="delBlok"){F.blokken.splice(+t.dataset.i,1);if(!F.blokken.length)F.blokken.push({a:"",b:"",t:""});drawBlokken();calcTot()}
+if(a==="editKlus"){editK=id;drawKlussen()}
+if(a==="cancelKlus"){editK=null;drawKlussen()}
+if(a==="saveKlus"){var ek=S.klussen.filter(function(x){return x.id===id})[0],nm2=$("ekn").value.trim();if(!ek)return;if(!nm2)return note("Vul een naam in.");ek.naam=nm2;ek.adres=$("eka").value.trim();editK=null;note("");save("klussen");drawAll()}
 if(a==="addKlus"){var n=$("kn").value.trim();if(!n)return note("Vul een naam in.");
 S.klussen.push({id:nid(),naam:n,adres:$("ka").value.trim(),fotos:[]});$("kn").value="";$("ka").value="";note("");save("klussen");drawAll()}
 if(a==="delKlus"){if(t.dataset.sure!=="1"){t.dataset.sure="1";t.textContent="Zeker weten? Tik nogmaals";return}
