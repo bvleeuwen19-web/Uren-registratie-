@@ -103,10 +103,18 @@ button.t{border:0;background:none;color:var(--muted);font:500 14px system-ui,san
 <div class="g2"><div><label for="kn">Naam of klant</label><input type="text" id="kn" placeholder="Familie De Vries"></div>
 <div><label for="ka">Adres</label><input type="text" id="ka" placeholder="Lindelaan 12"></div></div>
 <button class="b p" data-act="addKlus">Klus toevoegen</button></div>
+<input type="search" id="zoek" placeholder="Zoek een klus op naam, adres of notitie" aria-label="Zoek een klus" style="margin-bottom:12px">
 <div id="klusLijst"></div>
 </section>
 
 <section id="s-overzicht">
+<div class="card"><div class="kh" style="align-items:center"><button class="b" data-act="wkPrev" aria-label="Vorige week">‹</button><div style="text-align:center"><h2 id="wkTitel"></h2><small id="wkRange" style="color:var(--muted)"></small></div><button class="b" data-act="wkNext" aria-label="Volgende week">›</button></div>
+<div id="wkDagen" style="margin-top:8px"></div>
+<div class="total"><span id="wkLabel"></span><b id="wkTot"></b></div>
+<button class="b p" style="margin-top:0" data-act="wkCopy">Kopieer voor factuur</button>
+<div style="text-align:center;margin-top:6px"><button class="t" data-act="wkNow">Naar deze week</button></div>
+<div id="wkMsg" style="font-size:14px;color:var(--muted);min-height:20px" aria-live="polite"></div>
+<textarea id="wkTxt" rows="8" hidden readonly style="width:100%;font:14px/1.4 system-ui,sans-serif;background:var(--field);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px"></textarea></div>
 <div class="stats" id="stats"></div>
 <div class="card"><h2>Per klus</h2><div id="perKlus"></div></div>
 <div class="card"><h2>Per persoon</h2><div id="perPers"></div></div>
@@ -141,12 +149,13 @@ s.innerHTML=S.klussen.length?S.klussen.map(function(k){return"<option value='"+k
 if(v)s.value=v}
 function drawUren(){var l=S.uren.slice().sort(function(a,b){return a.datum<b.datum?1:a.datum>b.datum?-1:b.id>a.id?1:-1}).slice(0,15);
 $("urenLijst").innerHTML=l.length?l.map(function(u){return"<div class='row'><div><strong>"+esc(kn(u.klus))+"</strong><small>"+fd(u.datum)+((u.mensen&&u.mensen.length)?" · met "+u.mensen.map(esc).join(", "):"")+(u.notitie?" · "+esc(u.notitie):"")+"</small>"+(u.adres?"<small>"+esc(u.adres)+"</small>":"")+(u.gewerkt!=null?"<small>"+hrs(u.gewerkt)+" werk + "+hrs(u.heen)+" heen + "+hrs(u.terug)+" terug − "+hrs(u.pauze)+" pauze</small>":"")+"</div><div><span class='n'>"+hrs(u.uren)+"</span> <button class='t' data-act='delUren' data-id='"+u.id+"' aria-label='Registratie verwijderen'>×</button></div></div>"}).join(""):"<p class='empty'>Nog geen uren ingevuld.</p>"}
-function drawKlussen(){$("klusLijst").innerHTML=S.klussen.length?S.klussen.map(function(k){
+function drawKlussen(){var qz=($("zoek").value||"").trim().toLowerCase(),kl_=S.klussen.filter(function(k){return!qz||(k.naam+" "+(k.adres||"")+" "+S.uren.filter(function(u){return u.klus===k.id}).map(function(u){return(u.notitie||"")+" "+(u.adres||"")}).join(" ")).toLowerCase().indexOf(qz)>-1});
+$("klusLijst").innerHTML=kl_.length?kl_.map(function(k){
 var h=sum(S.uren.filter(function(u){return u.klus===k.id})),f=k.fotos||[];
 return"<div class='card'><div class='kh'><div><h2>"+esc(k.naam)+"</h2><small style='color:var(--muted)'>"+esc(k.adres||"")+"</small></div><span class='n'>"+hrs(h)+"</span></div>"+
 (f.length?"<div class='photos'>"+f.map(function(id){return"<button data-act='photo' data-k='"+k.id+"' data-p='"+id+"' aria-label='Foto bekijken'><img data-pid='"+id+"' alt='Foto van "+esc(k.naam)+"'></button>"}).join("")+"</div>":"")+
 "<label class='file'>+ Foto’s toevoegen<input type='file' accept='image/*' multiple data-klus='"+k.id+"'></label>"+
-"<div style='text-align:right;margin-top:6px'><button class='t' data-act='delKlus' data-id='"+k.id+"'>Klus verwijderen</button></div></div>"}).join(""):"<p class='empty'>Nog geen klussen. Voeg hierboven uw eerste klus toe.</p>";showPhotos()}
+"<div style='text-align:right;margin-top:6px'><button class='t' data-act='delKlus' data-id='"+k.id+"'>Klus verwijderen</button></div></div>"}).join(""):"<p class='empty'>"+(S.klussen.length?"Geen klussen gevonden.":"Nog geen klussen. Voeg hierboven uw eerste klus toe.")+"</p>";showPhotos()}
 function drawOverzicht(){var now=new Date(),ws=key(mon(now)),ms=key(now).slice(0,7);
 var w=sum(S.uren.filter(function(u){return u.datum>=ws})),m=sum(S.uren.filter(function(u){return u.datum.slice(0,7)===ms}));
 $("stats").innerHTML="<div><b>"+hrs(w)+"</b><span>Deze week</span></div><div><b>"+hrs(m)+"</b><span>Deze maand</span></div><div><b>"+hrs(sum(S.uren))+"</b><span>Totaal</span></div>";
@@ -168,7 +177,27 @@ function drawChips(){$("chips").innerHTML=S.namen.map(function(n){return"<button
 function fillAdr(){var k=S.klussen.filter(function(x){return x.id===$("ksel").value})[0];$("adr").value=(k&&k.adres)||""}
 function drawDays(){var v=$("dat").value;if(!v){$("days").innerHTML="";return}var d=pd(v),w=d.getDay();
 $("days").innerHTML=["Ma","Di","Wo","Do","Vr"].map(function(n,i){return"<button class='chip"+(w===i+1?" on":"")+"' data-act='day' data-i='"+(i+1)+"'>"+n+"</button>"}).join("")+"<span style='align-self:center;color:var(--muted);font-size:14px'>"+d.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"})+"</span>"}
-function drawAll(){drawSel();if(!$("adr").value)fillAdr();drawChips();drawDays();drawUren();drawKlussen();drawOverzicht()}
+var WS=mon(new Date());
+function isoWeek(d){var t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())),n=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-n);var y=new Date(Date.UTC(t.getUTCFullYear(),0,1));return Math.ceil(((t-y)/864e5+1)/7)}
+function uur(n){return String(Math.round(n*100)/100).replace(".",",")+" uur"}
+function wkDays(){var a=[];for(var i=0;i<7;i++){var d=new Date(WS);d.setDate(WS.getDate()+i);var e=S.uren.filter(function(u){return u.datum===key(d)});a.push({d:d,e:e,t:sum(e)})}return a}
+function wkRange(){var e=new Date(WS);e.setDate(e.getDate()+6);return WS.toLocaleDateString("nl-NL",{day:"numeric",month:"short"})+" – "+e.toLocaleDateString("nl-NL",{day:"numeric",month:"short",year:"numeric"})}
+function drawWeek(){var nr=isoWeek(WS),days=wkDays(),tot=0;
+$("wkTitel").textContent="Week "+nr;$("wkRange").textContent=wkRange();
+$("wkDagen").innerHTML=days.filter(function(x,i){return i<5||x.e.length}).map(function(x){tot+=x.t;
+var info=x.e.length?x.e.map(function(u){return"<small>"+esc(kn(u.klus))+(u.adres?", "+esc(u.adres):"")+((u.mensen&&u.mensen.length)?" · met "+u.mensen.map(esc).join(", "):"")+"</small>"+(u.gewerkt!=null?"<small>"+hrs(u.gewerkt)+" werk + "+hrs(u.heen)+" heen + "+hrs(u.terug)+" terug − "+hrs(u.pauze)+" pauze</small>":"")}).join(""):"<small>Geen uren</small>";
+return"<div class='row' style='align-items:flex-start'><div><strong>"+x.d.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"short"})+"</strong>"+info+"</div><span class='n'>"+(x.e.length?hrs(x.t):"–")+"</span></div>"}).join("");
+$("wkLabel").textContent="Totaal week "+nr;$("wkTot").textContent=hrs(tot)}
+function wkText(){var nr=isoWeek(WS),l=["Week "+nr+" ("+wkRange()+")"],tot=0;
+wkDays().forEach(function(x){if(!x.e.length)return;tot+=x.t;
+l.push(x.d.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"short"})+": "+uur(x.t)+" - "+x.e.map(function(u){return kn(u.klus)+(u.adres?", "+u.adres:"")}).join("; "))});
+l.push("Totaal week "+nr+": "+uur(tot));return l.join("\n")}
+function copyText(t){var ok=function(){$("wkMsg").textContent="Gekopieerd. Plak het nu in je factuur."},
+fb=function(){var x=$("wkTxt");x.hidden=false;x.value=t;x.focus();x.select();x.setSelectionRange(0,t.length);var r=false;try{r=document.execCommand("copy")}catch(e){}
+$("wkMsg").textContent=r?"Gekopieerd. Plak het nu in je factuur.":"Houd de tekst hieronder ingedrukt en kies Kopieer."};
+if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,fb);else fb()}
+function drawAll(){drawSel();if(!$("adr").value)fillAdr();drawChips();drawDays();drawUren();drawKlussen();drawOverzicht();drawWeek()}
+document.addEventListener("input",function(e){if(e.target.id==="zoek")drawKlussen()});
 document.addEventListener("change",function(e){if(e.target.id==="ksel")fillAdr();if(e.target.id==="dat")drawDays()});
 document.addEventListener("input",function(e){var k=e.target.dataset&&e.target.dataset.v;if(k){V[k]=Math.max(0,parseFloat(e.target.value)||0);calcTot()}});
 document.addEventListener("change",function(e){var k=e.target.dataset&&e.target.dataset.v;if(k)setV(k,parseFloat(e.target.value)||0)});
@@ -188,6 +217,10 @@ if(!(tot>0))return note("Vul de uren in.");
 if(!$("dat").value)return note("Kies een datum.");
 S.uren.push({id:nid(),klus:k,datum:$("dat").value,heen:V.heen,terug:V.terug,gewerkt:V.gewerkt,pauze:V.pauze,uren:tot,adres:$("adr").value.trim(),mensen:sel.slice(),notitie:$("txt").value.trim()});
 resetForm();note("Uren opgeslagen.");save("uren");drawAll()}
+if(a==="wkPrev"){WS.setDate(WS.getDate()-7);$("wkMsg").textContent="";$("wkTxt").hidden=true;drawWeek()}
+if(a==="wkNext"){WS.setDate(WS.getDate()+7);$("wkMsg").textContent="";$("wkTxt").hidden=true;drawWeek()}
+if(a==="wkNow"){WS=mon(new Date());$("wkMsg").textContent="";$("wkTxt").hidden=true;drawWeek()}
+if(a==="wkCopy"){if(!wkDays().some(function(x){return x.e.length}))return $("wkMsg").textContent="Geen uren in deze week.";copyText(wkText())}
 if(a==="day"){var dd=mon(pd($("dat").value||key(new Date())));dd.setDate(dd.getDate()+(+t.dataset.i-1));$("dat").value=key(dd);drawDays()}
 if(a==="step"){setV(t.dataset.k,V[t.dataset.k]+parseFloat(t.dataset.d))}
 if(a==="pers"){var pn_=t.dataset.n,pi=sel.indexOf(pn_);if(pi>-1)sel.splice(pi,1);else sel.push(pn_);drawChips()}
