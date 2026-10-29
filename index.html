@@ -73,28 +73,53 @@ button.t{border:0;background:none;color:var(--muted);font:500 14px system-ui,san
 .total span{font-size:14px;color:#b8c3d1;display:block}
 .total b{font:700 40px/1.1 "Arial Narrow",Impact,sans-serif}
 .total small{display:block;color:#b8c3d1;font-size:13px}
+textarea{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:11px 12px;resize:vertical}
+textarea:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.tr{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}
+.blok{display:grid;grid-template-columns:1fr auto 1fr auto;gap:6px;align-items:center;margin-bottom:10px}
+.blok input[type=text]{grid-column:1/-1}
+.dag{padding:12px 0;border-top:1px solid var(--line)}
+.dag:first-child{border-top:0}
+.dag pre{white-space:pre-wrap;font:14px/1.45 system-ui,sans-serif;margin:6px 0 0;color:var(--muted)}
+.card[hidden]{display:none}
+#lb{padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.lbtop{display:flex;justify-content:space-between;align-items:center;width:100%;color:#fff}
+.lbmid{display:flex;align-items:center;gap:6px;width:100%;justify-content:center}
+.lbmid img{flex:1;min-width:0;max-width:100%;max-height:66vh;object-fit:contain}
+.lbmid .arrow{width:42px;height:64px;padding:0;font-size:30px;flex:none}
+.lbbtn{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+#lbMsg{color:#fff;font-size:14px;min-height:20px;text-align:center}
 </style>
 </head>
 <body>
 <div class="bar"><h1>Uren en klussen</h1>
 <div class="tabs" role="tablist"><button class="on" data-tab="uren">Uren</button><button data-tab="klussen">Klussen</button><button data-tab="overzicht">Overzicht</button></div></div>
 <main>
-<div class="warn" id="warn" hidden>Opslaan is in deze weergave niet beschikbaar. Wat u invult blijft alleen staan zolang de pagina open is.</div>
+<div class="warn" id="warn" hidden>Opslaan is hier niet beschikbaar. Wat u invult blijft alleen staan zolang de pagina open is.</div>
 <div id="note" aria-live="polite"></div>
 
 <section id="s-uren" class="on">
-<div class="card"><h2>Uren invullen</h2>
-<label for="ksel">Klus</label><select id="ksel"></select>
-<label for="dat">Datum</label><input type="date" id="dat">
-<div class="chips" id="days" style="margin-top:8px"></div>
-<label for="adr">Adres</label><input type="text" id="adr" placeholder="Straat en plaats" autocomplete="street-address">
-<label>Met wie heb je gewerkt?</label>
+<div class="card"><div class="kh" style="align-items:center"><h2 id="formTitel">Uren invullen</h2><button class="t" id="cancelEdit" data-act="cancelEdit" hidden>Annuleer bewerken</button></div>
+<label for="dat">Dag</label>
+<div class="chips" id="days"></div>
+<input type="date" id="dat">
+<label>Wie</label>
 <div class="chips" id="chips"></div>
 <div class="add"><input type="text" id="nn" placeholder="Nieuwe naam" aria-label="Nieuwe naam"><button class="b" data-act="addNaam">Toevoegen</button></div>
-<div id="steps" style="margin-top:12px"></div>
-<div class="total"><span>Totaal uren schrijven</span><b id="tot">0 u</b><small id="calc"></small></div>
-<label for="txt">Notitie (niet verplicht)</label><input type="text" id="txt" placeholder="Bijvoorbeeld: nok gedaan, goot nog open">
-<button class="b p" data-act="addUren">Uren opslaan</button></div>
+<label>Reistijd heen</label>
+<div class="tr"><input type="time" id="heenA" data-f="heenA" aria-label="Heenreis van"><span>/</span><input type="time" id="heenB" data-f="heenB" aria-label="Heenreis tot"></div>
+<label>Aantal uren gewerkt</label>
+<div id="blokken"></div>
+<button class="b" data-act="addBlok">+ Regel toevoegen</button>
+<label>Reistijd terug</label>
+<div class="tr"><input type="time" id="terugA" data-f="terugA" aria-label="Terugreis van"><span>/</span><input type="time" id="terugB" data-f="terugB" aria-label="Terugreis tot"></div>
+<div class="st" style="margin-top:12px"><span>Pauze (uur)</span><div><button class="b" data-act="step" data-d="-0.25" aria-label="Pauze min 0,25">−</button><input type="number" id="pauze" data-f="pauze" min="0" step="0.25" inputmode="decimal" aria-label="Pauze"><button class="b" data-act="step" data-d="0.25" aria-label="Pauze plus 0,25">+</button></div></div>
+<label for="adr">Adress</label><textarea id="adr" rows="2" data-f="adres" placeholder="Straat en plaats, eventueel meer regels"></textarea>
+<div class="st" style="margin-top:6px"><span>Loods uren<br><small style="color:var(--muted)">Apart bijgehouden, niet bij het totaal</small></span><div><button class="b" data-act="stepL" data-d="-0.25" aria-label="Loods min 0,25">−</button><input type="number" id="loodsU" data-f="loodsU" min="0" step="0.25" inputmode="decimal" aria-label="Loods uren"><button class="b" data-act="stepL" data-d="0.25" aria-label="Loods plus 0,25">+</button></div></div>
+<input type="text" id="loodsT" data-f="loodsT" placeholder="Toelichting, bijvoorbeeld tanken" aria-label="Loods toelichting">
+<div class="total"><span>Totaal schrijven</span><b id="tot">0 u</b><small id="calc"></small></div>
+<label for="tm">Zelf invullen (niet verplicht, anders rekent de app het uit)</label><input type="number" id="tm" data-f="tm" step="0.25" inputmode="decimal" placeholder="Automatisch">
+<button class="b p" data-act="addUren">Opslaan</button></div>
 <div class="card"><h2>Laatste registraties</h2><div id="urenLijst"></div></div>
 </section>
 
@@ -110,22 +135,28 @@ button.t{border:0;background:none;color:var(--muted);font:500 14px system-ui,san
 <section id="s-overzicht">
 <div class="card"><div class="kh" style="align-items:center"><button class="b" data-act="wkPrev" aria-label="Vorige week">‹</button><div style="text-align:center"><h2 id="wkTitel"></h2><small id="wkRange" style="color:var(--muted)"></small></div><button class="b" data-act="wkNext" aria-label="Volgende week">›</button></div>
 <div id="wkDagen" style="margin-top:8px"></div>
-<div class="total"><span id="wkLabel"></span><b id="wkTot"></b></div>
-<button class="b p" style="margin-top:0" data-act="wkCopy">Kopieer voor factuur</button>
+<div class="total"><span id="wkLabel"></span><b id="wkTot"></b><small id="wkLoods"></small></div>
+<button class="b p" style="margin-top:0" data-act="wkCopy">Kopieer week</button>
+<label for="wkMail">E-mailadres voor de factuur</label><input type="email" id="wkMail" placeholder="naam@voorbeeld.nl" autocomplete="email">
+<button class="b" style="width:100%;margin-top:8px" data-act="wkMailGo">Zet week in een mail</button>
 <div style="text-align:center;margin-top:6px"><button class="t" data-act="wkNow">Naar deze week</button></div>
 <div id="wkMsg" style="font-size:14px;color:var(--muted);min-height:20px" aria-live="polite"></div>
-<textarea id="wkTxt" rows="8" hidden readonly style="width:100%;font:14px/1.4 system-ui,sans-serif;background:var(--field);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px"></textarea></div>
+<textarea id="wkTxt" rows="8" hidden readonly></textarea></div>
 <div class="stats" id="stats"></div>
-<div class="card"><h2>Per klus</h2><div id="perKlus"></div></div>
+<div class="card"><h2>Loods uren</h2><div class="stats" id="loodsStats" style="margin:0"></div></div>
 <div class="card"><h2>Per persoon</h2><div id="perPers"></div></div>
 <div class="card"><h2>Per week</h2><div id="perWeek"></div></div>
+<div class="card" id="kardKlus"><h2>Per klus</h2><div id="perKlus"></div></div>
 </section>
+<p style="text-align:center;color:var(--muted);font-size:12px;margin-top:24px">Versie 7</p>
 </main>
 
-<div id="lb" role="dialog" aria-label="Foto"><img id="lbimg" alt="Foto van de klus"><div><button class="b" data-act="lbClose">Sluiten</button> <button class="b" data-act="lbDel">Foto verwijderen</button></div></div>
+<div id="lb" role="dialog" aria-label="Foto"><div class="lbtop"><span id="lbcount"></span><button class="b" data-act="lbClose">Sluiten</button></div>
+<div class="lbmid"><button class="b arrow" data-act="lbPrev" aria-label="Vorige foto">‹</button><img id="lbimg" alt="Foto van de klus"><button class="b arrow" data-act="lbNext" aria-label="Volgende foto">›</button></div>
+<div class="lbbtn"><button class="b" data-act="lbShare">Deel foto</button><button class="b" data-act="lbShareAll">Deel alle foto’s</button><button class="b" data-act="lbDel">Verwijderen</button></div><div id="lbMsg" aria-live="polite"></div></div>
 
 <script>
-var DEF=["John","Damian","Milan","Tom","Jeffrey","Nick","Quincy"],V={heen:0,terug:0,gewerkt:0,pauze:.5},sel=[],S={klussen:[],uren:[],namen:DEF.slice()},db=null,urls={},q=Promise.resolve(),lb=null;
+var DEF=["John","Damian","Milan","Tom","Jeffrey","Nick","Quincy"],S={klussen:[],uren:[],namen:DEF.slice(),mail:""},db=null,urls={},q=Promise.resolve(),lb=null,WS=null,editId=null,F=null;
 var $=function(i){return document.getElementById(i)};
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function nid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
@@ -134,125 +165,150 @@ function p2(n){return(n<10?"0":"")+n}
 function key(d){return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())}
 function pd(s){return new Date(s+"T00:00:00")}
 function mon(d){var x=new Date(d);x.setDate(x.getDate()-(x.getDay()+6)%7);x.setHours(0,0,0,0);return x}
-function hrs(n){return String(Math.round(n*100)/100).replace(".",",")+" u"}
-function fd(s){return pd(s).toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"short"})}
-function kn(id){var k=S.klussen.filter(function(k){return k.id===id})[0];return k?k.naam:"(verwijderde klus)"}
+function fmt(n){return String(Math.round(n*100)/100).replace(".",",")}
+function hrs(n){return fmt(n)+" u"}
+function dn(d,o){return d.toLocaleDateString("nl-NL",o)}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+function kn(id){var k=S.klussen.filter(function(k){return k.id===id})[0];return k?k.naam:""}
 function sum(a){return a.reduce(function(t,u){return t+(+u.uren||0)},0)}
+function isoWeek(d){var t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())),n=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-n);var y=new Date(Date.UTC(t.getUTCFullYear(),0,1));return Math.ceil(((t-y)/864e5+1)/7)}
 function tx(st,m,f){return new Promise(function(res,rej){var t=db.transaction(st,m),r=f(t.objectStore(st));t.oncomplete=function(){res(r&&r.result)};t.onerror=t.onabort=function(){rej(t.error)}})}
 function save(k){if(!db)return;q=q.then(function(){return tx("kv","readwrite",function(s){return s.put(S[k],k)})}).catch(function(){note("Opslaan mislukt, probeer het opnieuw.")})}
-function photo(id){if(urls[id])return Promise.resolve(urls[id]);return tx("foto","readonly",function(s){return s.get(id)}).then(function(b){return b?(urls[id]=URL.createObjectURL(b)):""})}
+var blobs={};
+function photo(id){if(urls[id])return Promise.resolve(urls[id]);return tx("foto","readonly",function(s){return s.get(id)}).then(function(b){if(b)blobs[id]=b;return b?(urls[id]=URL.createObjectURL(b)):""})}
+function lbList(){var k=S.klussen.filter(function(x){return x.id===lb.k})[0];return k?(k.fotos||[]):[]}
+function lbShow(){var l=lbList();if(!l.length){$("lb").classList.remove("on");lb=null;return}
+if(lb.i>=l.length)lb.i=l.length-1;if(lb.i<0)lb.i=0;
+$("lbcount").textContent=(lb.i+1)+" / "+l.length;$("lbMsg").textContent="";$("lbimg").removeAttribute("src");
+photo(l[lb.i]).then(function(u){$("lbimg").src=u});l.forEach(function(id){photo(id)})}
+function shareFiles(ids){var files=ids.map(function(id,i){return blobs[id]?new File([blobs[id]],"klus-foto-"+(i+1)+".jpg",{type:"image/jpeg"}):null}).filter(Boolean);
+if(!files.length){$("lbMsg").textContent="De foto’s worden nog geladen, probeer het zo opnieuw.";return}
+if(navigator.share&&navigator.canShare&&navigator.canShare({files:files})){navigator.share({files:files}).catch(function(){})}
+else $("lbMsg").textContent="Delen wordt op dit toestel niet ondersteund."}
 function showPhotos(){document.querySelectorAll("img[data-pid]").forEach(function(im){photo(im.dataset.pid).then(function(u){if(u)im.src=u})})}
 function delPhoto(id){delete urls[id];if(db)tx("foto","readwrite",function(s){return s.delete(id)}).catch(function(){})}
-
-function drawSel(){var s=$("ksel"),v=s.value;
-s.innerHTML=S.klussen.length?S.klussen.map(function(k){return"<option value='"+k.id+"'>"+esc(k.naam)+(k.adres?" – "+esc(k.adres):"")+"</option>"}).join(""):"<option value=''>Maak eerst een klus aan</option>";
-if(v)s.value=v}
-function drawUren(){var l=S.uren.slice().sort(function(a,b){return a.datum<b.datum?1:a.datum>b.datum?-1:b.id>a.id?1:-1}).slice(0,15);
-$("urenLijst").innerHTML=l.length?l.map(function(u){return"<div class='row'><div><strong>"+esc(kn(u.klus))+"</strong><small>"+fd(u.datum)+((u.mensen&&u.mensen.length)?" · met "+u.mensen.map(esc).join(", "):"")+(u.notitie?" · "+esc(u.notitie):"")+"</small>"+(u.adres?"<small>"+esc(u.adres)+"</small>":"")+(u.gewerkt!=null?"<small>"+hrs(u.gewerkt)+" werk + "+hrs(u.heen)+" heen + "+hrs(u.terug)+" terug − "+hrs(u.pauze)+" pauze</small>":"")+"</div><div><span class='n'>"+hrs(u.uren)+"</span> <button class='t' data-act='delUren' data-id='"+u.id+"' aria-label='Registratie verwijderen'>×</button></div></div>"}).join(""):"<p class='empty'>Nog geen uren ingevuld.</p>"}
-function drawKlussen(){var qz=($("zoek").value||"").trim().toLowerCase(),kl_=S.klussen.filter(function(k){return!qz||(k.naam+" "+(k.adres||"")+" "+S.uren.filter(function(u){return u.klus===k.id}).map(function(u){return(u.notitie||"")+" "+(u.adres||"")}).join(" ")).toLowerCase().indexOf(qz)>-1});
-$("klusLijst").innerHTML=kl_.length?kl_.map(function(k){
-var h=sum(S.uren.filter(function(u){return u.klus===k.id})),f=k.fotos||[];
-return"<div class='card'><div class='kh'><div><h2>"+esc(k.naam)+"</h2><small style='color:var(--muted)'>"+esc(k.adres||"")+"</small></div><span class='n'>"+hrs(h)+"</span></div>"+
-(f.length?"<div class='photos'>"+f.map(function(id){return"<button data-act='photo' data-k='"+k.id+"' data-p='"+id+"' aria-label='Foto bekijken'><img data-pid='"+id+"' alt='Foto van "+esc(k.naam)+"'></button>"}).join("")+"</div>":"")+
-"<label class='file'>+ Foto’s toevoegen<input type='file' accept='image/*' multiple data-klus='"+k.id+"'></label>"+
-"<div style='text-align:right;margin-top:6px'><button class='t' data-act='delKlus' data-id='"+k.id+"'>Klus verwijderen</button></div></div>"}).join(""):"<p class='empty'>"+(S.klussen.length?"Geen klussen gevonden.":"Nog geen klussen. Voeg hierboven uw eerste klus toe.")+"</p>";showPhotos()}
-function drawOverzicht(){var now=new Date(),ws=key(mon(now)),ms=key(now).slice(0,7);
-var w=sum(S.uren.filter(function(u){return u.datum>=ws})),m=sum(S.uren.filter(function(u){return u.datum.slice(0,7)===ms}));
-$("stats").innerHTML="<div><b>"+hrs(w)+"</b><span>Deze week</span></div><div><b>"+hrs(m)+"</b><span>Deze maand</span></div><div><b>"+hrs(sum(S.uren))+"</b><span>Totaal</span></div>";
-var pk=S.klussen.map(function(k){return{n:k.naam,h:sum(S.uren.filter(function(u){return u.klus===k.id}))}}).sort(function(a,b){return b.h-a.h}),mx=Math.max.apply(null,pk.map(function(x){return x.h}).concat(1));
-$("perKlus").innerHTML=pk.length?pk.map(function(x){return"<div style='margin:10px 0'><div class='kh'><span>"+esc(x.n)+"</span><strong>"+hrs(x.h)+"</strong></div><div class='meter'><i style='width:"+Math.round(x.h/mx*100)+"%'></i></div></div>"}).join(""):"<p class='empty'>Nog niets om te tonen.</p>";
-var pp={};S.uren.forEach(function(u){(u.mensen||[]).forEach(function(n){pp[n]=pp[n]||{h:0,d:0};pp[n].h+=+u.uren||0;pp[n].d++})});
-var pn=Object.keys(pp).sort(function(a,b){return pp[b].h-pp[a].h});
-$("perPers").innerHTML=pn.length?pn.map(function(n){return"<div class='row'><span>"+esc(n)+"<small>"+pp[n].d+"x samen gewerkt</small></span><span class='n'>"+hrs(pp[n].h)+"</span></div>"}).join(""):"<p class='empty'>Nog niemand gekozen bij je uren.</p>";
-var wk={};S.uren.forEach(function(u){var k=key(mon(pd(u.datum)));wk[k]=(wk[k]||0)+(+u.uren||0)});
-var ks=Object.keys(wk).sort().reverse().slice(0,8);
-$("perWeek").innerHTML=ks.length?ks.map(function(k){return"<div class='row'><span>Week van "+pd(k).toLocaleDateString("nl-NL",{day:"numeric",month:"long"})+"</span><span class='n'>"+hrs(wk[k])+"</span></div>"}).join(""):"<p class='empty'>Nog niets om te tonen.</p>"}
-function fmt(n){return String(n).replace(".",",")}
-function total(){return Math.max(0,V.heen+V.terug+V.gewerkt-V.pauze)}
-function calcTot(){$("tot").textContent=hrs(total());$("calc").textContent=fmt(V.gewerkt)+" werk + "+fmt(V.heen)+" heen + "+fmt(V.terug)+" terug − "+fmt(V.pauze)+" pauze"}
-function buildSteps(){$("steps").innerHTML=[["heen","Heenreis"],["terug","Terugreis"],["gewerkt","Totaal gewerkte uren"],["pauze","Pauze"]].map(function(r){return"<div class='st'><span>"+r[1]+"</span><div><button class='b' data-act='step' data-k='"+r[0]+"' data-d='-0.25' aria-label='"+r[1]+" min 0,25'>−</button><input type='number' data-v='"+r[0]+"' min='0' step='0.25' inputmode='decimal' value='"+V[r[0]]+"' aria-label='"+r[1]+"'><button class='b' data-act='step' data-k='"+r[0]+"' data-d='0.25' aria-label='"+r[1]+" plus 0,25'>+</button></div></div>"}).join("")}
-function setV(k,v){V[k]=Math.max(0,Math.round(v*4)/4);var i=document.querySelector("[data-v='"+k+"']");if(i)i.value=V[k];calcTot()}
-function resetForm(){$("adr").value="";["heen","terug","gewerkt"].forEach(function(k){setV(k,0)});setV("pauze",.5);sel=[];$("txt").value="";drawChips()}
-function drawChips(){$("chips").innerHTML=S.namen.map(function(n){return"<button class='chip"+(sel.indexOf(n)>-1?" on":"")+"' data-act='pers' data-n='"+esc(n)+"'>"+esc(n)+"</button>"}).join("")}
-function fillAdr(){var k=S.klussen.filter(function(x){return x.id===$("ksel").value})[0];$("adr").value=(k&&k.adres)||""}
-function drawDays(){var v=$("dat").value;if(!v){$("days").innerHTML="";return}var d=pd(v),w=d.getDay();
-$("days").innerHTML=["Ma","Di","Wo","Do","Vr"].map(function(n,i){return"<button class='chip"+(w===i+1?" on":"")+"' data-act='day' data-i='"+(i+1)+"'>"+n+"</button>"}).join("")+"<span style='align-self:center;color:var(--muted);font-size:14px'>"+d.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"})+"</span>"}
-var WS=mon(new Date());
-function isoWeek(d){var t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())),n=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-n);var y=new Date(Date.UTC(t.getUTCFullYear(),0,1));return Math.ceil(((t-y)/864e5+1)/7)}
-function uur(n){return String(Math.round(n*100)/100).replace(".",",")+" uur"}
-function wkDays(){var a=[];for(var i=0;i<7;i++){var d=new Date(WS);d.setDate(WS.getDate()+i);var e=S.uren.filter(function(u){return u.datum===key(d)});a.push({d:d,e:e,t:sum(e)})}return a}
-function wkRange(){var e=new Date(WS);e.setDate(e.getDate()+6);return WS.toLocaleDateString("nl-NL",{day:"numeric",month:"short"})+" – "+e.toLocaleDateString("nl-NL",{day:"numeric",month:"short",year:"numeric"})}
-function drawWeek(){var nr=isoWeek(WS),days=wkDays(),tot=0;
-$("wkTitel").textContent="Week "+nr;$("wkRange").textContent=wkRange();
-$("wkDagen").innerHTML=days.filter(function(x,i){return i<5||x.e.length}).map(function(x){tot+=x.t;
-var info=x.e.length?x.e.map(function(u){return"<small>"+esc(kn(u.klus))+(u.adres?", "+esc(u.adres):"")+((u.mensen&&u.mensen.length)?" · met "+u.mensen.map(esc).join(", "):"")+"</small>"+(u.gewerkt!=null?"<small>"+hrs(u.gewerkt)+" werk + "+hrs(u.heen)+" heen + "+hrs(u.terug)+" terug − "+hrs(u.pauze)+" pauze</small>":"")}).join(""):"<small>Geen uren</small>";
-return"<div class='row' style='align-items:flex-start'><div><strong>"+x.d.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"short"})+"</strong>"+info+"</div><span class='n'>"+(x.e.length?hrs(x.t):"–")+"</span></div>"}).join("");
-$("wkLabel").textContent="Totaal week "+nr;$("wkTot").textContent=hrs(tot)}
-function wkText(){var nr=isoWeek(WS),l=["Week "+nr+" ("+wkRange()+")"],tot=0;
-wkDays().forEach(function(x){if(!x.e.length)return;tot+=x.t;
-l.push(x.d.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"short"})+": "+uur(x.t)+" - "+x.e.map(function(u){return kn(u.klus)+(u.adres?", "+u.adres:"")}).join("; "))});
-l.push("Totaal week "+nr+": "+uur(tot));return l.join("\n")}
-function copyText(t){var ok=function(){$("wkMsg").textContent="Gekopieerd. Plak het nu in je factuur."},
-fb=function(){var x=$("wkTxt");x.hidden=false;x.value=t;x.focus();x.select();x.setSelectionRange(0,t.length);var r=false;try{r=document.execCommand("copy")}catch(e){}
-$("wkMsg").textContent=r?"Gekopieerd. Plak het nu in je factuur.":"Houd de tekst hieronder ingedrukt en kies Kopieer."};
-if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,fb);else fb()}
-function drawAll(){drawSel();if(!$("adr").value)fillAdr();drawChips();drawDays();drawUren();drawKlussen();drawOverzicht();drawWeek()}
-document.addEventListener("input",function(e){if(e.target.id==="zoek")drawKlussen()});
-document.addEventListener("change",function(e){if(e.target.id==="ksel")fillAdr();if(e.target.id==="dat")drawDays()});
-document.addEventListener("input",function(e){var k=e.target.dataset&&e.target.dataset.v;if(k){V[k]=Math.max(0,parseFloat(e.target.value)||0);calcTot()}});
-document.addEventListener("change",function(e){var k=e.target.dataset&&e.target.dataset.v;if(k)setV(k,parseFloat(e.target.value)||0)});
-
 function shrink(f){return new Promise(function(res){var r=new FileReader();
 r.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement("canvas");
 c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext("2d").drawImage(im,0,0,c.width,c.height);c.toBlob(function(b){res(b)},"image/jpeg",.82)};
 im.onerror=function(){res(null)};im.src=r.result};r.onerror=function(){res(null)};r.readAsDataURL(f)})}
 
+function newF(){return{mensen:[],heenA:"",heenB:"",blokken:[{a:"",b:"",t:""}],terugA:"",terugB:"",pauze:.5,adres:"",loodsU:0,loodsT:"",tm:""}}
+function dh(a,b){if(!a||!b)return 0;var x=a.split(":"),y=b.split(":"),m=(+y[0]*60+(+y[1]))-(+x[0]*60+(+x[1]));if(m<0)m+=1440;return m/60}
+function calc(){var h=dh(F.heenA,F.heenB),w=F.blokken.reduce(function(t,b){return t+dh(b.a,b.b)},0),r=dh(F.terugA,F.terugB),auto=Math.round((h+w+r-F.pauze)*4)/4,man=F.tm!==""&&!isNaN(parseFloat(F.tm));
+return{h:h,w:w,r:r,man:man,tot:Math.max(0,man?parseFloat(F.tm):auto)}}
+function calcTot(){var c=calc();$("tot").textContent=hrs(c.tot);$("calc").textContent="Heen "+fmt(c.h)+" + werk "+fmt(c.w)+" + terug "+fmt(c.r)+" − pauze "+fmt(F.pauze)+(c.man?" (zelf ingevuld)":"")}
+function drawBlokken(){$("blokken").innerHTML=F.blokken.map(function(b,i){return"<div class='blok'><input type='time' data-bi='"+i+"' data-bk='a' value='"+b.a+"' aria-label='Werk van'><span>/</span><input type='time' data-bi='"+i+"' data-bk='b' value='"+b.b+"' aria-label='Werk tot'><button class='t' data-act='delBlok' data-i='"+i+"' aria-label='Regel verwijderen'>×</button><input type='text' data-bi='"+i+"' data-bk='t' value='"+esc(b.t)+"' placeholder='Plaats of klus, bijvoorbeeld Zoetermeer' aria-label='Plaats of klus'></div>"}).join("")}
+function drawChips(){$("chips").innerHTML=S.namen.map(function(n){return"<button class='chip"+(F.mensen.indexOf(n)>-1?" on":"")+"' data-act='pers' data-n='"+esc(n)+"'>"+esc(n)+"</button>"}).join("")}
+function drawDays(){var v=$("dat").value;if(!v){$("days").innerHTML="";return}var d=pd(v),w=d.getDay();
+$("days").innerHTML=["Ma","Di","Wo","Do","Vr"].map(function(n,i){return"<button class='chip"+(w===i+1?" on":"")+"' data-act='day' data-i='"+(i+1)+"'>"+n+"</button>"}).join("")+"<span style='align-self:center;color:var(--muted);font-size:14px'>"+dn(d,{weekday:"long",day:"numeric",month:"long"})+"</span>"}
+function fillForm(){["heenA","heenB","terugA","terugB","loodsT","tm"].forEach(function(k){$(k).value=F[k]});$("loodsU").value=F.loodsU;$("adr").value=F.adres;$("pauze").value=F.pauze;
+drawBlokken();drawChips();drawDays();calcTot();$("formTitel").textContent=editId?"Registratie bewerken":"Uren invullen";$("cancelEdit").hidden=!editId}
+
+function drawUren(){var l=S.uren.slice().sort(function(a,b){return a.datum<b.datum?1:a.datum>b.datum?-1:b.id>a.id?1:-1}).slice(0,15);
+$("urenLijst").innerHTML=l.length?l.map(function(u){var adr=(u.adres||"").split("\n")[0];
+return"<div class='row'><div><strong>"+cap(dn(pd(u.datum),{weekday:"long",day:"numeric",month:"short"}))+"</strong><small>"+(u.klus&&kn(u.klus)?esc(kn(u.klus))+" · ":"")+((u.mensen&&u.mensen.length)?"met "+u.mensen.map(esc).join(", "):"alleen")+(adr?" · "+esc(adr):"")+"</small></div><div style='text-align:right'><span class='n'>"+hrs(u.uren)+"</span><br><button class='t' data-act='edit' data-id='"+u.id+"'>Bewerk</button><button class='t' data-act='delUren' data-id='"+u.id+"' aria-label='Registratie verwijderen'>×</button></div></div>"}).join(""):"<p class='empty'>Nog geen uren ingevuld.</p>"}
+function drawKlussen(){var qz=($("zoek").value||"").trim().toLowerCase(),kl=S.klussen.filter(function(k){return!qz||(k.naam+" "+(k.adres||"")+" "+S.uren.filter(function(u){return u.klus===k.id}).map(function(u){return(u.notitie||"")+" "+(u.adres||"")}).join(" ")).toLowerCase().indexOf(qz)>-1});
+$("klusLijst").innerHTML=kl.length?kl.map(function(k){var h=sum(S.uren.filter(function(u){return u.klus===k.id})),f=k.fotos||[];
+return"<div class='card'><div class='kh'><div><h2>"+esc(k.naam)+"</h2><small style='color:var(--muted)'>"+esc(k.adres||"")+"</small></div>"+(h?"<span class='n'>"+hrs(h)+"</span>":"")+"</div>"+
+(f.length?"<div class='photos'>"+f.map(function(id){return"<button data-act='photo' data-k='"+k.id+"' data-p='"+id+"' aria-label='Foto bekijken'><img data-pid='"+id+"' alt='Foto van "+esc(k.naam)+"'></button>"}).join("")+"</div>":"")+
+"<label class='file'>+ Foto’s toevoegen<input type='file' accept='image/*' multiple data-klus='"+k.id+"'></label>"+
+"<div style='text-align:right;margin-top:6px'><button class='t' data-act='delKlus' data-id='"+k.id+"'>Klus verwijderen</button></div></div>"}).join(""):"<p class='empty'>"+(S.klussen.length?"Geen klussen gevonden.":"Nog geen klussen. Voeg hierboven uw eerste klus toe.")+"</p>";showPhotos()}
+
+function loodsLine(e){var a=e.loodsU?fmt(e.loodsU):"",b=e.loodsT!=null?e.loodsT:(e.loods||"");return a&&b?a+" + "+b:(a||b)}
+function eText(e){var L=["Wie: "+(e.mensen&&e.mensen.length?e.mensen.join(" "):"Alleen"),"Reistijd heen"+((e.heenA||e.heenB)?" "+(e.heenA||"")+"/"+(e.heenB||""):""),"Aantal uren gewerkt:"];
+(e.blokken||[]).forEach(function(b){L.push(b.a||b.b?(b.a||"")+"/"+(b.b||"")+(b.t?" "+b.t:""):b.t)});
+L.push("Reistijd terug"+((e.terugA||e.terugB)?" "+(e.terugA||"")+"/"+(e.terugB||""):""),"Pauze: "+fmt(e.pauze!=null?e.pauze:.5),"Adress: "+(e.adres||""),"Loods uren: "+loodsLine(e),"Totaal schrijven: "+fmt(e.uren));return L.join("\n")}
+var EMPTY="Wie:\nReistijd heen\nAantal uren gewerkt:\nReistijd terug\nPauze: 0,5\nAdress:\nLoods uren:\nTotaal schrijven:";
+function wkDays(){var a=[];for(var i=0;i<7;i++){var d=new Date(WS);d.setDate(WS.getDate()+i);var e=S.uren.filter(function(u){return u.datum===key(d)});a.push({d:d,e:e,t:sum(e),txt:e.length?e.map(eText).join("\n\n"):EMPTY})}return a.filter(function(x,i){return i<5||x.e.length})}
+function wkText(){return"Week "+isoWeek(WS)+"\n\n"+wkDays().map(function(x){return cap(dn(x.d,{weekday:"long"}))+"\n"+x.txt}).join("\n\n")}
+function wkRange(){var e=new Date(WS);e.setDate(e.getDate()+6);return dn(WS,{day:"numeric",month:"short"})+" – "+dn(e,{day:"numeric",month:"short",year:"numeric"})}
+function drawWeek(){var nr=isoWeek(WS),tot=0;$("wkTitel").textContent="Week "+nr;$("wkRange").textContent=wkRange();
+$("wkDagen").innerHTML=wkDays().map(function(x){tot+=x.t;return"<div class='dag'><div class='kh'><strong>"+cap(dn(x.d,{weekday:"long",day:"numeric",month:"short"}))+"</strong><span class='n'>"+(x.e.length?hrs(x.t):"–")+"</span></div><pre>"+esc(x.txt)+"</pre></div>"}).join("");
+$("wkLabel").textContent="Totaal week "+nr;$("wkTot").textContent=hrs(tot);$("wkLoods").textContent="Loods uren: "+hrs(wkDays().reduce(function(t,x){return t+x.e.reduce(function(r,u){return r+(+u.loodsU||0)},0)},0))+" (apart, niet meegeteld)";if(document.activeElement!==$("wkMail"))$("wkMail").value=S.mail||""}
+function copyText(t){var ok=function(){$("wkMsg").textContent="Gekopieerd. Plak het nu in je factuur."},
+fb=function(){var x=$("wkTxt");x.hidden=false;x.value=t;x.focus();x.select();x.setSelectionRange(0,t.length);var r=false;try{r=document.execCommand("copy")}catch(e){}
+$("wkMsg").textContent=r?"Gekopieerd. Plak het nu in je factuur.":"Houd de tekst hieronder ingedrukt en kies Kopieer."};
+if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,fb);else fb()}
+function drawOverzicht(){var now=new Date(),ws=key(mon(now)),ms=key(now).slice(0,7);
+var w=sum(S.uren.filter(function(u){return u.datum>=ws})),m=sum(S.uren.filter(function(u){return u.datum.slice(0,7)===ms}));
+$("stats").innerHTML="<div><b>"+hrs(w)+"</b><span>Deze week</span></div><div><b>"+hrs(m)+"</b><span>Deze maand</span></div><div><b>"+hrs(sum(S.uren))+"</b><span>Totaal</span></div>";
+var L=function(f){return S.uren.filter(f).reduce(function(t,u){return t+(+u.loodsU||0)},0)};
+$("loodsStats").innerHTML="<div><b>"+hrs(L(function(u){return u.datum>=ws}))+"</b><span>Deze week</span></div><div><b>"+hrs(L(function(u){return u.datum.slice(0,7)===ms}))+"</b><span>Deze maand</span></div><div><b>"+hrs(L(function(){return true}))+"</b><span>Totaal</span></div>";
+var pk=S.klussen.map(function(k){return{n:k.naam,h:sum(S.uren.filter(function(u){return u.klus===k.id}))}}).filter(function(x){return x.h>0}).sort(function(a,b){return b.h-a.h}),mx=Math.max.apply(null,pk.map(function(x){return x.h}).concat(1));
+$("kardKlus").hidden=!pk.length;
+$("perKlus").innerHTML=pk.map(function(x){return"<div style='margin:10px 0'><div class='kh'><span>"+esc(x.n)+"</span><strong>"+hrs(x.h)+"</strong></div><div class='meter'><i style='width:"+Math.round(x.h/mx*100)+"%'></i></div></div>"}).join("");
+var pp={};S.uren.forEach(function(u){(u.mensen||[]).forEach(function(n){pp[n]=pp[n]||{h:0,d:0};pp[n].h+=+u.uren||0;pp[n].d++})});
+var pn=Object.keys(pp).sort(function(a,b){return pp[b].h-pp[a].h});
+$("perPers").innerHTML=pn.length?pn.map(function(n){return"<div class='row'><span>"+esc(n)+"<small>"+pp[n].d+"x samen gewerkt</small></span><span class='n'>"+hrs(pp[n].h)+"</span></div>"}).join(""):"<p class='empty'>Nog niemand gekozen bij je uren.</p>";
+var wk={};S.uren.forEach(function(u){var k=key(mon(pd(u.datum)));wk[k]=(wk[k]||0)+(+u.uren||0)});
+var ks=Object.keys(wk).sort().reverse().slice(0,8);
+$("perWeek").innerHTML=ks.length?ks.map(function(k){return"<div class='row'><span>Week "+isoWeek(pd(k))+"<small>vanaf "+dn(pd(k),{day:"numeric",month:"long"})+"</small></span><span class='n'>"+hrs(wk[k])+"</span></div>"}).join(""):"<p class='empty'>Nog niets om te tonen.</p>"}
+function drawAll(){drawChips();drawDays();drawUren();drawKlussen();drawOverzicht();drawWeek()}
+
+document.addEventListener("input",function(e){var t=e.target,d=t.dataset||{};
+if(d.bi!==undefined){F.blokken[+d.bi][d.bk]=t.value;calcTot()}
+else if(d.f){F[d.f]=(d.f==="pauze"||d.f==="loodsU")?(parseFloat(t.value)||0):t.value;calcTot()}
+else if(t.id==="zoek")drawKlussen()});
+document.addEventListener("change",function(e){var t=e.target,d=t.dataset||{};
+if(t.id==="dat")drawDays();
+if(t.id==="wkMail"){S.mail=t.value.trim();save("mail")}
+if(d.f==="pauze"){F.pauze=Math.max(0,Math.round((parseFloat(t.value)||0)*4)/4);t.value=F.pauze;calcTot()}
+if(d.f==="loodsU"){F.loodsU=Math.max(0,Math.round((parseFloat(t.value)||0)*4)/4);t.value=F.loodsU}
+if(d.klus){var k=S.klussen.filter(function(x){return x.id===d.klus})[0],files=Array.prototype.slice.call(t.files);
+if(!k||!files.length)return;if(!db)return note("Foto’s toevoegen is niet beschikbaar.");
+note("Foto’s uploaden…");k.fotos=k.fotos||[];
+files.reduce(function(p,f){return p.then(function(){return shrink(f)}).then(function(b){if(!b)return;var id=nid();return tx("foto","readwrite",function(s){return s.put(b,id)}).then(function(){k.fotos.push(id);drawKlussen()})})},Promise.resolve())
+.then(function(){note("")},function(){note("Een foto kon niet worden geüpload.")}).then(function(){save("klussen");drawAll()})}});
+
 document.addEventListener("click",function(e){var t=e.target.closest("[data-act],[data-tab]");if(!t)return;
 if(t.dataset.tab){document.querySelectorAll("[data-tab]").forEach(function(b){b.classList.toggle("on",b===t)});
 document.querySelectorAll("section").forEach(function(s){s.classList.toggle("on",s.id==="s-"+t.dataset.tab)});note("");return}
 var a=t.dataset.act,id=t.dataset.id;
-if(a==="addUren"){var k=$("ksel").value,tot=total();
-if(!k)return note("Maak eerst een klus aan op het tabblad Klussen.");
-if(!(tot>0))return note("Vul de uren in.");
-if(!$("dat").value)return note("Kies een datum.");
-S.uren.push({id:nid(),klus:k,datum:$("dat").value,heen:V.heen,terug:V.terug,gewerkt:V.gewerkt,pauze:V.pauze,uren:tot,adres:$("adr").value.trim(),mensen:sel.slice(),notitie:$("txt").value.trim()});
-resetForm();note("Uren opgeslagen.");save("uren");drawAll()}
-if(a==="wkPrev"){WS.setDate(WS.getDate()-7);$("wkMsg").textContent="";$("wkTxt").hidden=true;drawWeek()}
-if(a==="wkNext"){WS.setDate(WS.getDate()+7);$("wkMsg").textContent="";$("wkTxt").hidden=true;drawWeek()}
-if(a==="wkNow"){WS=mon(new Date());$("wkMsg").textContent="";$("wkTxt").hidden=true;drawWeek()}
-if(a==="wkCopy"){if(!wkDays().some(function(x){return x.e.length}))return $("wkMsg").textContent="Geen uren in deze week.";copyText(wkText())}
-if(a==="day"){var dd=mon(pd($("dat").value||key(new Date())));dd.setDate(dd.getDate()+(+t.dataset.i-1));$("dat").value=key(dd);drawDays()}
-if(a==="step"){setV(t.dataset.k,V[t.dataset.k]+parseFloat(t.dataset.d))}
-if(a==="pers"){var pn_=t.dataset.n,pi=sel.indexOf(pn_);if(pi>-1)sel.splice(pi,1);else sel.push(pn_);drawChips()}
+if(a==="addUren"){var c=calc(),dat=$("dat").value;
+if(!dat)return note("Kies een dag.");
+if(!(c.tot>0)&&!F.adres.trim())return note("Vul de tijden in.");
+var en={id:editId||nid(),datum:dat,mensen:F.mensen.slice(),heenA:F.heenA,heenB:F.heenB,blokken:F.blokken.filter(function(b){return b.a||b.b||b.t}).map(function(b){return{a:b.a,b:b.b,t:b.t.trim()}}),terugA:F.terugA,terugB:F.terugB,pauze:F.pauze,adres:F.adres.trim(),loodsU:F.loodsU,loodsT:F.loodsT.trim(),uren:c.tot};
+if(editId){var old=S.uren.filter(function(x){return x.id===editId})[0];if(old&&old.klus)en.klus=old.klus;S.uren=S.uren.map(function(x){return x.id===editId?en:x})}else S.uren.push(en);
+editId=null;F=newF();fillForm();note("Opgeslagen.");save("uren");drawAll()}
+if(a==="edit"){var u=S.uren.filter(function(x){return x.id===id})[0];if(!u)return;F=newF();F.mensen=(u.mensen||[]).slice();
+["heenA","heenB","terugA","terugB"].forEach(function(k){F[k]=u[k]||""});F.loodsU=+u.loodsU||0;F.loodsT=u.loodsT!=null?u.loodsT:(u.loods||"");F.pauze=u.pauze!=null?u.pauze:.5;F.adres=u.adres||"";
+if(u.blokken&&u.blokken.length)F.blokken=u.blokken.map(function(b){return{a:b.a||"",b:b.b||"",t:b.t||""}});
+editId=id;$("dat").value=u.datum;if(Math.abs(calc().tot-u.uren)>.01)F.tm=String(u.uren);fillForm();window.scrollTo(0,0)}
+if(a==="cancelEdit"){editId=null;F=newF();fillForm()}
+if(a==="delUren"){S.uren=S.uren.filter(function(x){return x.id!==id});if(editId===id){editId=null;F=newF();fillForm()}save("uren");drawAll()}
 if(a==="addNaam"){var nm=$("nn").value.trim();if(!nm)return;
 var ex=S.namen.filter(function(x){return x.toLowerCase()===nm.toLowerCase()})[0];
 if(!ex){S.namen.push(nm);ex=nm;save("namen")}
-if(sel.indexOf(ex)<0)sel.push(ex);$("nn").value="";drawChips()}
-if(a==="delUren"){S.uren=S.uren.filter(function(x){return x.id!==id});save("uren");drawAll()}
+if(F.mensen.indexOf(ex)<0)F.mensen.push(ex);$("nn").value="";drawChips()}
+if(a==="pers"){var n_=t.dataset.n,i_=F.mensen.indexOf(n_);if(i_>-1)F.mensen.splice(i_,1);else F.mensen.push(n_);drawChips()}
+if(a==="day"){var dd=mon(pd($("dat").value||key(new Date())));dd.setDate(dd.getDate()+(+t.dataset.i-1));$("dat").value=key(dd);drawDays()}
+if(a==="step"){F.pauze=Math.max(0,Math.round((F.pauze+parseFloat(t.dataset.d))*4)/4);$("pauze").value=F.pauze;calcTot()}
+if(a==="stepL"){F.loodsU=Math.max(0,Math.round((F.loodsU+parseFloat(t.dataset.d))*4)/4);$("loodsU").value=F.loodsU}
+if(a==="addBlok"){var l=F.blokken[F.blokken.length-1];F.blokken.push({a:(l&&l.b)||"",b:"",t:""});drawBlokken()}
+if(a==="delBlok"){F.blokken.splice(+t.dataset.i,1);if(!F.blokken.length)F.blokken.push({a:"",b:"",t:""});drawBlokken();calcTot()}
 if(a==="addKlus"){var n=$("kn").value.trim();if(!n)return note("Vul een naam in.");
 S.klussen.push({id:nid(),naam:n,adres:$("ka").value.trim(),fotos:[]});$("kn").value="";$("ka").value="";note("");save("klussen");drawAll()}
 if(a==="delKlus"){if(t.dataset.sure!=="1"){t.dataset.sure="1";t.textContent="Zeker weten? Tik nogmaals";return}
-var kl=S.klussen.filter(function(x){return x.id===id})[0];
-if(kl)(kl.fotos||[]).forEach(delPhoto);
+var kl=S.klussen.filter(function(x){return x.id===id})[0];if(kl)(kl.fotos||[]).forEach(delPhoto);
 S.klussen=S.klussen.filter(function(x){return x.id!==id});S.uren=S.uren.filter(function(x){return x.klus!==id});save("klussen");save("uren");drawAll()}
-if(a==="photo"){lb={k:t.dataset.k,p:t.dataset.p};photo(lb.p).then(function(u){$("lbimg").src=u});$("lb").classList.add("on")}
+if(a==="photo"){var kx=S.klussen.filter(function(x){return x.id===t.dataset.k})[0];lb={k:t.dataset.k,i:Math.max(0,(kx.fotos||[]).indexOf(t.dataset.p))};$("lb").classList.add("on");lbShow()}
 if(a==="lbClose"){$("lb").classList.remove("on");lb=null}
-if(a==="lbDel"&&lb){var kk=S.klussen.filter(function(x){return x.id===lb.k})[0],pid=lb.p;
-if(kk)kk.fotos=kk.fotos.filter(function(x){return x!==pid});delPhoto(pid);
-$("lb").classList.remove("on");lb=null;save("klussen");drawAll()}});
+if(a==="lbPrev"||a==="lbNext"){var n2=lbList().length;if(n2){lb.i=(lb.i+(a==="lbNext"?1:-1)+n2)%n2;lbShow()}}
+if(a==="lbShare"){shareFiles([lbList()[lb.i]])}
+if(a==="lbShareAll"){shareFiles(lbList())}
+if(a==="lbDel"&&lb){var kk=S.klussen.filter(function(x){return x.id===lb.k})[0],pid=lbList()[lb.i];
+if(kk)kk.fotos=kk.fotos.filter(function(x){return x!==pid});delPhoto(pid);delete blobs[pid];save("klussen");drawAll();lbShow()}
+if(a==="wkPrev"||a==="wkNext"||a==="wkNow"){if(a==="wkNow")WS=mon(new Date());else WS.setDate(WS.getDate()+(a==="wkNext"?7:-7));$("wkMsg").textContent="";$("wkTxt").hidden=true;drawWeek()}
+if(a==="wkCopy"){if(!wkDays().some(function(x){return x.e.length}))return $("wkMsg").textContent="Geen uren in deze week.";copyText(wkText())}
+if(a==="wkMailGo"){if(!wkDays().some(function(x){return x.e.length}))return $("wkMsg").textContent="Geen uren in deze week.";
+S.mail=$("wkMail").value.trim();save("mail");location.href="mailto:"+S.mail+"?subject="+encodeURIComponent("Uren week "+isoWeek(WS))+"&body="+encodeURIComponent(wkText())}});
 
-document.addEventListener("change",function(e){var t=e.target;if(!t.dataset||!t.dataset.klus)return;
-var k=S.klussen.filter(function(x){return x.id===t.dataset.klus})[0],files=Array.prototype.slice.call(t.files);
-if(!k||!files.length)return;
-if(!db)return note("Foto’s toevoegen is niet beschikbaar.");
-note("Foto’s uploaden…");k.fotos=k.fotos||[];
-files.reduce(function(p,f){return p.then(function(){return shrink(f)}).then(function(b){if(!b)return;var id=nid();return tx("foto","readwrite",function(s){return s.put(b,id)}).then(function(){k.fotos.push(id);drawKlussen()})})},Promise.resolve())
-.then(function(){note("")},function(){note("Een foto kon niet worden geüpload.")}).then(function(){save("klussen");drawAll()})});
-
-$("dat").value=key(new Date());buildSteps();calcTot();drawAll();
+var sx=null;$("lb").addEventListener("touchstart",function(e){sx=e.touches[0].clientX},{passive:true});
+$("lb").addEventListener("touchend",function(e){if(sx===null||!lb)return;var dx=e.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)>50){var n=lbList().length;if(n){lb.i=(lb.i+(dx<0?1:-1)+n)%n;lbShow()}}},{passive:true});
+WS=mon(new Date());F=newF();$("dat").value=key(new Date());fillForm();drawAll();
 (function(){try{var r=indexedDB.open("uren-klussen",1);
 r.onupgradeneeded=function(){r.result.createObjectStore("kv");r.result.createObjectStore("foto")};
-r.onsuccess=function(){db=r.result;["klussen","uren","namen"].forEach(function(k){tx("kv","readonly",function(s){return s.get(k)}).then(function(v){S[k]=v||(k==="namen"?DEF.slice():[]);drawAll()})})};
+r.onsuccess=function(){db=r.result;["klussen","uren","namen","mail"].forEach(function(k){tx("kv","readonly",function(s){return s.get(k)}).then(function(v){S[k]=v||(k==="namen"?DEF.slice():k==="mail"?"":[]);drawAll()})})};
 r.onerror=function(){$("warn").hidden=false}}catch(e){$("warn").hidden=false}
 if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(function(){})})();
 </script>
